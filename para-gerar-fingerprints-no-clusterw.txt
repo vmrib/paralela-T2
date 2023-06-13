@@ -1,0 +1,56 @@
+Gerar fingerprints para uso do clusterw
+---------------------------------------
+
+
+Para forçar a geraçao de fingerprints para os nodos
+do clusterw abaixo salve e rode o script gera-fingerints.sh abaixo.
+
+Voce deve fazer isso 
+DEPOIS de ter gerado sua chave ssh (instruçoes anteriores).
+
+Isso deve ser feito porque ao rodar ssh ele nao ficará mais travado esperando
+voce dizer para gerar fingerprint para os nodos.
+
+Se um nodo do cluster for reinciado (isso deve ocorre haramente!)
+voce deverá gerar fingerprint para esse nodo novamente,
+com saber se é necessário? 
+  R: se ao rodar mpirun ficar travado, pode ser porque fingerprint nao está atualizada.
+     Basta rodar o seu script gera-fingerints.sh e tentar o mpi novamente!
+     
+     Se isso nao rodar o seus processos MPI pode ser que o problema esteja no SEU programa mpi!
+     Nesse caso isso pode ter ocorrido, por exemplo, se seus processos MPI esntrarem todos
+     em operaçao mpi receive, se todos os seus processos entrarem em receive os processos 
+     ficam em deadlock! 
+
+Script para gerar os fingerprints:
+
+Arquivo: gera-fingerints.sh (conteudo abaixo)
+
+   ssh -t wz00 "echo yes" |    ssh w01 hostname
+   ssh -t wz00 "echo yes" |    ssh w02 hostname
+   ssh -t wz00 "echo yes" |    ssh w03 hostname
+   ssh -t wz00 "echo yes" |    ssh w04 hostname
+   ssh -t wz00 "echo yes" |    ssh w05 hostname
+   ssh -t wz00 "echo yes" |    ssh w06 hostname
+   ssh -t wz00 "echo yes" |    ssh w07 hostname
+   ssh -t wz00 "echo yes" |    ssh w08 hostname
+
+   ssh -t wz00 "echo yes" |    ssh wz01 hostname
+   ssh -t wz00 "echo yes" |    ssh wz02 hostname
+   ssh -t wz00 "echo yes" |    ssh wz03 hostname
+   ssh -t wz00 "echo yes" |    ssh wz04 hostname
+   ssh -t wz00 "echo yes" |    ssh wz05 hostname
+   ssh -t wz00 "echo yes" |    ssh wz06 hostname
+   ssh -t wz00 "echo yes" |    ssh wz07 hostname
+   ssh -t wz00 "echo yes" |    ssh wz08 hostname
+         
+----------------         
+         
+Pronto! a partir dai voce consegue usar as maquinas 
+w01 ateh w08 
+(ou pelo nome completo wz01 a wz08) 
+sem password (via comandos ssh)
+E pode rodar mpi nesses nodos sem ter de digitar senha a toda vez que roda um processo!
+
+
+

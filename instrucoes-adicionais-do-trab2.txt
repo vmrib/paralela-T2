@@ -1,0 +1,95 @@
+CI316 - 1 sem 2023 - Trabalho 2 (myBcast_rb)
+
+Mais instrucoes para ficar mais claro o que deve ser entregue:
+TAMBEM:
+Ao final, como rodar suas experiencias 
+com exclusividade na fila de testes
+-------------------------------------------------------------
+
+Data da entrega: até 16/jun/23
+Será aberto para entrega via UFPR virtual
+
+Você deve entregar um tar.gz com todos os arquivos do seu trabalho.
+Tudo que deve ser entregue deve estar no tar.gz, com todos os aquivos necessarios
+para compilar e rodar seu programa e reproduzir seus resultados apresentados.
+ 
+.........................
+
+Você vai fazer graficos e colocar em planilha similar a do trab 1
+(você deve pegar a planilha do trab 1 e modificá-la para o trab2)
+
+Você deve rodar pelo menos 10 vezes cada experimento
+e reportar a media nos seus graficos e tabela (na planilha e no relatório)
+Cada experiência deve enviar 8000 (8 mil) mensagens de broadcast
+
+O gráfico e tabela deve conter tempo e vazão para os tamanhos abaixo,
+reportar o tempo para de 1 broadcast e a vazão,
+tanto da versao MPI_Bcast quanto da sua versao my_Bcast_rb
+
+Você vai incluir os resultados das experiências
+na sua PLANILHA e no seu RELATORIO
+somente os graficos e a tabela com as médias de tempo e vazão.
+(com suas descrições e conclusões)
+
+Sobre VAZAO:
+Assim como no programa main fornecido pelo prof., 
+reporte as vazoes em MB/s (Mega potencia de 10)
+Note que o deve ser a vazao de dados RECEBIDOS,
+Assim se uma mensagem de 4KiB é enviada (por exemlo)
+e temos 8 nodos participando do broadcast, 7 estao recebendo
+entao a quantidade de dados recebidos é 7 * 4KiB, nesse caso.
+Isso deve ser levado em conta ao reportar a VAZAO.
+
+
+Vamos testar para 8 nodos, e apenas 1 processo MPI por nodo.
+
+Testaremos com os tamanhos de mensagens 4 KB (4096 Bytes)  e 16KB (16384 Bytes) ,
+pois nesse caso a Split Binary Tree é a opção utilizada internamente pelo MPI.
+
+Ao rodar os experimentos via comando na fila de testes use o sbatch
+
+
+Ao rodar cada teste via sbatch (fila de jobs)
+certifique-se de usar a diretiva --exclusive
+assim:
+
+   sbatch --exclusive -N 8 myBcast-slurm.sh
+
+note que esse -N 8 acima está dizendo ao slurm quantos nodos usar na fila
+
+Você deve rodar sozinho em cada nodo (sbatch --exclusive)
+porque se alguém usar o nodo ao mesmo tempo
+ele irá interferir no seu tempo de uso da placa de rede,
+gerando resultados nao precisos de tempo.
+
+Ao rodar,
+Certifique-se TAMBEM que que o MPI colocou APENAS 1 processo MPI por nodo
+(melhor fazer o programa main, AO FINAL DEPOIS das verificações
+imprimir o hostname e o rank do processo, para você ter certeza de que foi rodado APENAS
+1 processo por nodo).
+Você pode incluir o codigo abaixo
+
+    // Get the name of the processor
+    char processor_name[MPI_MAX_PROCESSOR_NAME];
+    int name_len;
+    MPI_Get_processor_name(processor_name, &name_len);
+
+    // Print node info
+    printf("Host %s has rank %d out of %d MPI processes\n",
+           processor_name, rank, comm_size);
+
+Script para o slurm
+-------------------
+
+o script myBcast-slurm.sh pode conter os comandos abaixo (por exemplo)
+Note que NAO se especifica o número de nodos, pois isso é dado pelo comando sbatch acima.
+Mas foi avisado ao MPI para colocar 1 APENAS nodo por host (opção -N 1 do mpirun)
+
+arquivo: myBcast-slurm.sh
+#!/bin/bash
+mpirun -N 1 myBroadcast 8000 4096
+
+você roda assim:
+  sbatch --exclusive -N 8 myBcast-slurm.sh
+
+--------------------------------------------------------

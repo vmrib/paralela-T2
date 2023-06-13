@@ -1,0 +1,69 @@
+Uso do cluster Xeon
+-------------------
+
+Provisoriamente o cluster está com nome clusterw
+Esse cluster está com 18 nodos Xeon, cada nodo com 2 processadores e 4 nucleos por processador.
+Esse Xeon nao tem suporte de hyperthreads,
+  entao cada nodo pode rodar até 8 processos MPI (sem oversubscribe).
+  
+Os nodos tem nome w00 até w17
+Foi instalado o sistema de filas slurm, 
+  com uma fila para jobs chamada "testes",
+  essa fila diponibiliza os nodos w09 até w17
+  Esses nodos w09 até w17 somente podem ser usados via
+  sistema slurm, submetendo jobs na fila testes via comando sbatch
+  Voce pode ver o estado da fila com o comando squeue
+  (mais detalhes do uso das filas em breve! mas voce pode ver sobre o slurm pesquisando no google)
+  
+O nodo w00 (ou wz00) é o nodo de entrada (frontend) do cluster (unico com acesso a internet).
+para acessar o nodo w00 veja abaixo.
+
+Os nodos w01 até w08 podem ser usados para desenvolver e testar,
+sem usar filas.
+Para usa-los voce deve logar no nodo w00, configurar as chaves ssh para uso dos nodos w01 a w08
+e pronto! Depois de configuradas as chaves voce pode usar esses nodos.
+Veja como configurar as chaves abaixo.
+
+Para acesso no cluster xeon:
+----------------------------
+
+Acesso externo apenas na maquina wz00 através de:
+ssh user@200.238.130.80 -p4451 -X
+OU
+ssh 200.238.130.80 -p4451 -l user -X
+
+Os usuarios devem logar na wz00 e nao usar essa para processar
+apenas para compilar, desenvolver
+e disparar jobs na fila testes com o comando sbatch
+ou usar os nodos w01 ateh w08 para processar
+
+Cada host (ip) está em um hw separado diferente ligado com iface gigabit.
+
+Para configurar as chaves ssh para poder usar os nodos w01 a w08 (sem fila)
+---------------------------------------------------------------------------
+
+Siga essa receita:
+a) logar na w00
+b) digite o comando abaixo no terminal da w00 para gerar suas chaves ssh
+   (quando ele pedir a passphrase digite a tecla ENTER, nas três perguntas!)
+   O comando é:
+       ssh-keygen
+c) Execute o comando abaixo na w00:
+       cd .ssh ; cp id_rsa.pub authorized_keys
+       
+d) logue a primeira vez em cada maquina digitando os comandos abaixo e respondendo yes a cada vez:
+   ssh w01 hostname
+   ssh w02 hostname
+   ssh w03 hostname
+   ssh w04 hostname
+   ssh w05 hostname
+   ssh w06 hostname
+   ssh w07 hostname
+   ssh w08 hostname
+         
+Pronto! a partir dai voce consegue usar as maquinas 
+w01 ateh w08 sem password (via comandos ssh)
+E pode rodar mpi nesses nodos sem ter de digitar senha a toda vez que roda um processo!
+
+
+
