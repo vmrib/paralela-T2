@@ -48,8 +48,22 @@ const int SEED = 100;
 // int MPI_Bcast(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm)
 void my_Bcast_rb(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm)
 {
-  ////////////////// INSERIR AQUI SEU CODIGO
+	////////////////// INSERIR AQUI SEU CODIGO
+	int rank, rank_logico, comm_size;
 
+	MPI_Comm_rank(comm, &rank);
+	MPI_Comm_size(comm, &comm_size);
+	rank_logico = LOGIC_RANK(rank, root, comm_size);
+
+	for(int np = 1; np < comm_size; np *= 2){
+		
+		if(rank_logico < np && (rank_logico + np) < comm_size) {
+			MPI_Send(buffer, count, datatype, PHYSIC_RANK(rank_logico + np, root, comm_size), 0, comm);
+		}
+		else {
+			MPI_Recv(buffer, count, datatype, MPI_ANY_SOURCE, 0, comm, MPI_STATUS_IGNORE);
+		}
+	}
 }
 
 // OBS1: sua função my_Bcast_rb
