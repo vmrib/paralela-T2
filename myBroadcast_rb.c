@@ -161,7 +161,7 @@ int main(int argc, char *argv[]){
 	   #if BCAST_TYPE == USE_MPI_Bcast
  	       MPI_Bcast_rb( inmsg, ni, MPI_LONG, raiz, MPI_COMM_WORLD );
 	   #elif BCAST_TYPE == USE_my_Bcast
-	       my_Bcast( inmsg, ni, MPI_LONG, raiz, MPI_COMM_WORLD );
+	       my_Bcast_rb( inmsg, ni, MPI_LONG, raiz, MPI_COMM_WORLD );
 	   #else
 	       assert( BCAST_TYPE == USE_MPI_Bcast || BCAST_TYPE == USE_my_Bcast );
 	   #endif    
@@ -197,9 +197,9 @@ int main(int argc, char *argv[]){
 		printf("\n");
 	#endif
 	
-	wz_debug = 1;
+	//wz_debug = 1;
 	// verifica_my_Bcast a partir de raiz 0  ---------- COM valores da linha de comando
-	verifica_my_Bcast( inmsg, ni, MPI_LONG, raiz, MPI_COMM_WORLD );
+	//verifica_my_Bcast( inmsg, ni, MPI_LONG, raiz, MPI_COMM_WORLD );
 
         // verifica_my_Bcast a partir de raiz 0 ---------- COM OUTROS valores
 	//verifica_my_Bcast( inmsg, 7, MPI_LONG, 0, MPI_COMM_WORLD );
@@ -213,3 +213,5 @@ int main(int argc, char *argv[]){
 	MPI_Finalize( );
 	return 0;
 }
+
+//mpic++ myBroadcast_rb.c -o exec
