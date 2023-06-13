@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include "chrono.c"
 #include <assert.h>
+#include "verifica_my_Bcast_rb.c"
 
 
 #define USE_MPI_Bcast 1  // do NOT change
@@ -36,7 +37,7 @@ chronometer_t myBroadcastChrono;
 //#define DEBUG 1
 #define DEBUG 0
 
-const int SEED = 100;
+// const int SEED = 100;
 
 
 // MACROS para AJUDAR!
@@ -55,13 +56,14 @@ void my_Bcast_rb(void *buffer, int count, MPI_Datatype datatype, int root, MPI_C
 	MPI_Comm_size(comm, &comm_size);
 	rank_logico = LOGIC_RANK(rank, root, comm_size);
 
+	if (rank != root) {
+		MPI_Recv(buffer, count, datatype, MPI_ANY_SOURCE, 0, comm, MPI_STATUS_IGNORE);
+	}
+
 	for(int np = 1; np < comm_size; np *= 2){
 		
 		if(rank_logico < np && (rank_logico + np) < comm_size) {
 			MPI_Send(buffer, count, datatype, PHYSIC_RANK(rank_logico + np, root, comm_size), 0, comm);
-		}
-		else {
-			MPI_Recv(buffer, count, datatype, MPI_ANY_SOURCE, 0, comm, MPI_STATUS_IGNORE);
 		}
 	}
 }
@@ -173,7 +175,7 @@ int main(int argc, char *argv[]){
 
 	for(int m = 0; m < nmsg; m++)
 	   #if BCAST_TYPE == USE_MPI_Bcast
- 	       MPI_Bcast_rb( inmsg, ni, MPI_LONG, raiz, MPI_COMM_WORLD );
+ 	       MPI_Bcast( inmsg, ni, MPI_LONG, raiz, MPI_COMM_WORLD );
 	   #elif BCAST_TYPE == USE_my_Bcast
 	       my_Bcast_rb( inmsg, ni, MPI_LONG, raiz, MPI_COMM_WORLD );
 	   #else
@@ -213,7 +215,7 @@ int main(int argc, char *argv[]){
 	
 	//wz_debug = 1;
 	// verifica_my_Bcast a partir de raiz 0  ---------- COM valores da linha de comando
-	//verifica_my_Bcast( inmsg, ni, MPI_LONG, raiz, MPI_COMM_WORLD );
+	verifica_my_Bcast_rb( inmsg, ni, MPI_LONG, raiz, MPI_COMM_WORLD );
 
         // verifica_my_Bcast a partir de raiz 0 ---------- COM OUTROS valores
 	//verifica_my_Bcast( inmsg, 7, MPI_LONG, 0, MPI_COMM_WORLD );

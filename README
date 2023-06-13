@@ -1,0 +1,9 @@
+## Comandos para rodar o projeto
+
+```
+# -N depende do número de processadores disponíveis
+mpirun -N 1 ./mpirun 8000 4096 1
+mpirun -N 2 ./mpirun 8000 4096 2
+mpirun -N 3 ./mpirun 8000 4096 3
+mpirun -N 4 ./mpirun 8000 4096 4
+```
