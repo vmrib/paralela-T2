@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include "chrono.c"
 #include <assert.h>
-#include "verifica_my_Bcast_rb.c"
+#include "verifica_My_Bcast_rb.c"
 
 #define USE_MPI_Bcast 1 // do NOT change
 #define USE_my_Bcast 2	// do NOT change
