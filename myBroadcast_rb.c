@@ -44,6 +44,10 @@ chronometer_t myBroadcastChrono;
 #define PHYSIC_RANK(logic_rank, root, comm_size) \
 	((logic_rank + root) % comm_size)
 
+#define MSG_UPPER_HALF_SIZE(count) (count / 2 + (count % 2))
+#define EVEN_NODE(rank) (rank % 2 == 0)
+#define ODD_NODE(rank) (rank % 2 == 1)
+
 // int MPI_Bcast(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm)
 void my_Bcast_rb(void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm)
 {
@@ -56,15 +60,68 @@ void my_Bcast_rb(void *buffer, int count, MPI_Datatype datatype, int root, MPI_C
 
 	if (rank != root)
 	{
-		MPI_Recv(buffer, count, datatype, MPI_ANY_SOURCE, 0, comm, MPI_STATUS_IGNORE);
+		if (EVEN_NODE(rank_logico))
+		{
+			MPI_Recv(buffer, count, datatype, MPI_ANY_SOURCE, 0, comm, MPI_STATUS_IGNORE);
+		}
+		else
+		{
+			MPI_Recv((long int *)buffer + count / 2, count, datatype, MPI_ANY_SOURCE, 0, comm, MPI_STATUS_IGNORE);
+		}
 	}
 
 	for (int np = 1; np < comm_size; np *= 2)
 	{
-
 		if (rank_logico < np && (rank_logico + np) < comm_size)
 		{
-			MPI_Send(buffer, count, datatype, PHYSIC_RANK(rank_logico + np, root, comm_size), 0, comm);
+			if (rank_logico == 0)
+			{
+				if (ODD_NODE(rank_logico + np))
+				{
+					MPI_Send((long int *)buffer + count / 2, MSG_UPPER_HALF_SIZE(count), datatype, PHYSIC_RANK(rank_logico + np, root, comm_size), 0, comm);
+				}
+				else
+				{
+					MPI_Send(buffer, count / 2, datatype, PHYSIC_RANK(rank_logico + np, root, comm_size), 0, comm);
+				}
+			}
+			else
+			{
+				MPI_Send(buffer, count, datatype, PHYSIC_RANK(rank_logico + np, root, comm_size), 0, comm);
+			}
+		}
+	}
+
+	// MPI_Barrier(comm);
+
+	if (rank_logico == 0)
+	{
+		// printf("%d enviou parte de baixo para %d\n", rank, PHYSIC_RANK(1, root, comm_size));
+		MPI_Send(buffer, count / 2, datatype, PHYSIC_RANK(1, root, comm_size), 0, comm);
+	}
+	else
+	{
+		if (ODD_NODE(rank_logico))
+		{
+			MPI_Recv(buffer, count, datatype, MPI_ANY_SOURCE, 0, comm, MPI_STATUS_IGNORE);
+			// printf("%d recebeu parte de baixo de %d\n", rank, PHYSIC_RANK(rank_logico - 1, root, comm_size));
+			if (rank_logico + 1 < comm_size)
+			{
+				// printf("%d enviou parte de cima para %d\n", rank, PHYSIC_RANK(rank_logico + 1, root, comm_size));
+				MPI_Send((long int *)buffer + count / 2, MSG_UPPER_HALF_SIZE(count), datatype, PHYSIC_RANK(rank_logico + 1, root, comm_size), 0, comm);
+			}
+		}
+		else
+		{
+			MPI_Recv((long int *)buffer + count / 2, count, datatype, MPI_ANY_SOURCE, 0, comm, MPI_STATUS_IGNORE);
+			// printf("%d recebeu parte de cima de %d\n", rank, PHYSIC_RANK(rank_logico - 1, root, comm_size));
+
+			if (rank_logico + 1 < comm_size)
+			{
+				
+				// printf("%d enviou parte de baixo para %d\n", rank, PHYSIC_RANK(rank_logico + 1, root, comm_size));
+				MPI_Send(buffer, count / 2, datatype, PHYSIC_RANK(rank_logico + 1, root, comm_size), 0, comm);
+			}
 		}
 	}
 }
