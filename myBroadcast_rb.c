@@ -66,7 +66,8 @@ void my_Bcast_rb(void *buffer, int count, MPI_Datatype datatype, int root, MPI_C
 		}
 		else
 		{
-			MPI_Recv((long int *)buffer + count / 2, count, datatype, MPI_ANY_SOURCE, 0, comm, MPI_STATUS_IGNORE);
+			MPI_Recv(((long int *)buffer) + count / 2, count, datatype, MPI_ANY_SOURCE, 0, comm, MPI_STATUS_IGNORE);
+			// MPI_Recv(buffer, count, datatype, MPI_ANY_SOURCE, 0, comm, MPI_STATUS_IGNORE);
 		}
 	}
 
@@ -78,16 +79,27 @@ void my_Bcast_rb(void *buffer, int count, MPI_Datatype datatype, int root, MPI_C
 			{
 				if (ODD_NODE(rank_logico + np))
 				{
+					// MPI_Send(buffer, count / 2, datatype, PHYSIC_RANK(rank_logico + np, root, comm_size), 0, comm);
 					MPI_Send((long int *)buffer + count / 2, MSG_UPPER_HALF_SIZE(count), datatype, PHYSIC_RANK(rank_logico + np, root, comm_size), 0, comm);
 				}
 				else
 				{
 					MPI_Send(buffer, count / 2, datatype, PHYSIC_RANK(rank_logico + np, root, comm_size), 0, comm);
+					// MPI_Send((long int *)buffer + count / 2, MSG_UPPER_HALF_SIZE(count), datatype, PHYSIC_RANK(rank_logico + np, root, comm_size), 0, comm);
 				}
 			}
 			else
 			{
-				MPI_Send(buffer, count, datatype, PHYSIC_RANK(rank_logico + np, root, comm_size), 0, comm);
+				if (ODD_NODE(rank_logico))
+				{
+					// MPI_Send(buffer, count / 2, datatype, PHYSIC_RANK(rank_logico + np, root, comm_size), 0, comm);
+					MPI_Send((long int *)buffer + count / 2, MSG_UPPER_HALF_SIZE(count), datatype, PHYSIC_RANK(rank_logico + np, root, comm_size), 0, comm);
+				}
+				else
+				{
+					MPI_Send(buffer, count / 2, datatype, PHYSIC_RANK(rank_logico + np, root, comm_size), 0, comm);
+					// MPI_Send((long int *)buffer + count / 2, MSG_UPPER_HALF_SIZE(count), datatype, PHYSIC_RANK(rank_logico + np, root, comm_size), 0, comm);
+				}
 			}
 		}
 	}
